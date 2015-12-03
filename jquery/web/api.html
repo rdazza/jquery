@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="Content-Language" content="es-es" />
+  <title>API oficial Game Server</title>
+  <link href="reset.css" rel="stylesheet" type="text/css" />
+  <link href="documentation.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="pygments.css" media="screen" rel="stylesheet" type="text/css">
+</head>
+
+<body class="api">
+    <div id="wrapper">
+    <div class="content">
+
+
+<h1 id="overview">Overview</h1>
+
+<p>Este documento describe los recursos que componen la API oficial de Game Server. La API permite crear partidas online.</p>
+
+<h2>Instalación</h2>
+
+<p>Descomprimir <code>exam-service.zip</code>. Se ejecuta desde un terminal y dentro del directorio <code>exam-service</code>. </p>
+
+
+<p>Para Windows:</p>
+
+<pre class="terminal">
+$ java.exe -cp lib\*;target\exam-service-1.0-SNAPSHOT.jar edu.upc.eetac.dsa.Main
+</pre>
+
+<p>Para Linux:</p>
+
+<pre class="terminal">
+$ java -cp lib/*:target/exam-service-1.0-SNAPSHOT.jar edu.upc.eetac.dsa.Main
+</pre>
+
+
+<h3>Alternativa</h3>
+
+<p> Generar el jar: </p>
+
+<pre class="terminal">mvn package</pre>
+
+<p> Ejecutar el jar: </p>
+
+<pre class="terminal">
+mvn exec:java
+</pre>
+
+<pre class="terminal">
+$ java java -cp lib/*:target/exam-service-1.0-SNAPSHOT.jar edu.upc.eetac.dsa.Main
+May 09, 2014 7:45:33 AM org.glassfish.jersey.server.ApplicationHandler initialize
+INFO: Initiating Jersey application, version Jersey: 2.8 2014-04-29 01:25:26...
+May 09, 2014 7:45:34 AM org.glassfish.grizzly.http.server.NetworkListener start
+INFO: Started listener bound to [localhost:8080]
+May 09, 2014 7:45:34 AM org.glassfish.grizzly.http.server.HttpServer start
+INFO: [HttpServer] Started.
+Jersey app started with WADL available at http://localhost:8080/myapp/application.wadl
+Hit enter to stop it...
+</pre>
+
+<h2>Esquema</h2>
+
+
+<p>Todo el acceso es API es a través de HTTP, y se accede desde el dominio <code>localhost:8080</code>. Todos los datos se envían y se reciben como JSON. Para verificar que funciona <code>http://localhost:8080/myapp/game</code>
+</p>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 09 May 2015 05:45:56 GMT
+Content-Length: 73
+
+{"description":"Partida de prueba","id":"test","url":"http://prova/test"}
+</code></pre>
+
+<p>Todas las marcas de tiempo se devuelven en formato ISO 8601:</p>
+
+<pre><code>YYYY-MM-DDTHH:MM:SSZ
+</code></pre>
+
+<h2>Errores</h2>
+
+<p>Hay diferentes tipos posibles de errores de cliente en las llamadas al API. Todos son mostrados con el correspondiente codigo de error de HTTP.</p>
+
+<pre><code>HTTP/1.1 404 Not Found
+Date: Fri, 09 May 2014 05:57:39 GMT
+Content-Length: 0
+</code></pre>
+
+
+<h1>Recurso </h1>
+
+<table>
+<thead><tr>
+<th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr></thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+      <td><code>string</code></td>
+      <td>
+<strong>Required</strong>. Identificador unico de la partida</td>
+    </tr>
+<tr>
+<td><code>url</code></td>
+      <td><code>string</code></td>
+      <td>
+<strong>Required</strong>. La URL donde esta publicada la partida.</td>
+    </tr>
+<tr>
+<td><code>description</code></td>
+      <td><code>string</code></td>
+      <td>Todos los comentarios y detalles.</td>
+    </tr>
+<tr>
+<td><code>userlist</code></td>
+      <td><code>string[]</code></td>
+      <td><strong>Required</strong>. La lista de los jugadores de la partida.</td>
+    </tr>
+<tr>
+<td><code>creationdate</code></td>
+      <td><code>date</code></td>
+      <td>Fecha de creación de la partida en formato ISO 8601: <code>YYYY-MM-DDTHH:MM:SS</code>. Si no se indica, se crea con la fecha actual.</td>
+    </tr>
+<tr>
+
+
+</tbody>
+</table>
+
+
+<h2>Create, read, update and delete (CRUD)</h2>
+
+
+<table>
+<thead><tr>
+<th>Operación</th> <th>Metodo HTTP</th> </tr></thead>
+<tbody>
+<tr>
+<tr>
+<td><code>GET</code></td>
+      <td>Se utiliza para recuperar los recursos. </td>
+    </tr>
+<tr>
+<td><code>POST</code></td>
+      <td>Se utiliza para la creación de recursos.</td>
+    </tr>
+<tr>
+<tr>
+<td><code>PUT</code></td>
+      <td>Se utiliza para la sustitución de recursos.</td>
+    </tr>
+<tr>
+<td><code>DELETE</code></td>
+      <td>Se utiliza para eliminar los recursos.</td>
+    </tr>
+</tbody>
+</table>
+
+<h2>Recupera una partida de test</h2>
+
+<pre><code>GET /myapp/game
+</code></pre>
+
+<h3>Response</h3>
+
+<pre class="headers"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 09 May 2014 06:22:42 GMT
+Content-Length: 73</code></pre>
+
+<pre><code class="language-javascript"><span class="p">
+	{
+	"description": "Partida de prueba",
+	"id": "test",
+	"url": "http://prova/test"
+	}
+</span></code></pre>
+
+
+<h2>Lista de las partidas</h2>
+
+<pre><code>GET /myapp/game/list
+</code></pre>
+
+<h3>Response</h3>
+
+<pre class="headers"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 09 May 2015 06:18:25 GMT
+Content-Length: 504</code></pre>
+
+<pre><code class="language-javascript"><span class="p">
+{
+	"games": [
+		{
+			"creationdate": "2015-04-04T00:00:00",
+			"description": "primera partida de verdad",
+			"id": "third",
+			"url": "http://prova/3",
+			"userlist": [
+				"Sergio",
+				"Roc"
+			]
+		},
+		{
+			"creationdate": "2015-04-02T00:00:00",
+			"description": "segunda partida de prueba",
+			"id": "2",
+			"url": "http://prova/2",
+			"userlist": [
+				"Juanito",
+				"Jorgito",
+				"Jaimito"
+			]
+		},
+		{
+			"creationdate": "2014-07-02T00:00:00",
+			"description": "partida de prueba",
+			"id": "1",
+			"url": "http://prova/1",
+			"userlist": [
+				"Juanito",
+				"Jorgito",
+				"Jaimito"
+			]
+		}
+	]
+}
+</span></code></pre>
+
+<h2>Lista las partidas con paginación</h2>
+
+<pre><code>GET /myapp/game/pagination
+</code></pre>
+
+<p>Para simplificar cada pagina solo tiene un fichero. Con el parametro <code>page</code> indicamos la pagina que queremos. Por ejemplo <code>/myapp/file/pagination?page=2</code>. Si no existe el paremetro devuelva la pagina 0.</p> 
+
+<p>Los links de las paginas anterior y posterior estan en la cabezara <code>Link</code> del HTTP.</p>
+
+<h3>Response</h3>
+
+<pre class="headers"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sat, 18 Apr 2015 23:53:33 GMT
+Link: &lt;http://localhost:8080/myapp/game/pagination?page=0gt;; rel="prev", 
+	&lt;http://localhost:8080/myapp/game/pagination?page=2gt;; rel="next"
+Content-Length: 177</code></pre>
+
+<pre><code class="language-javascript"><span class="p">
+{
+	"games": [
+		{
+			"creationdate": "2015-04-04T00:00:00",
+			"description": "primera partida de verdad",
+			"id": "3",
+			"url": "http://prova/3",
+			"userlist": [
+				"Sergio",
+				"Roc"
+			]
+		}
+	]
+}
+</span></code></pre>
+
+  
+  
+<h2>Recupera una partida</h2>
+
+<pre><code>GET /myapp/file/:gameid
+</code></pre>
+
+<h3>Response</h3>
+
+<pre class="headers"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 09 May 2015 06:25:32 GMT
+Content-Length: 130</code></pre>
+
+<pre><code class="language-javascript"><span class="p">
+{
+    "creationdate": "2014-07-02T00:00:00",
+    "description": "partida de prueba",
+    "id": "1",
+    "url": "http://prova/1",
+    "userlist": [
+        "Juanito",
+        "Jorgito",
+        "Jaimito"
+    ]
+}
+</span></code></pre>
+
+<h2>Borrar una partida</h2>
+
+<pre><code>DELETE /myapp/game/:gameid
+</code></pre>
+
+<h3>Response</h3>
+
+<pre class="headers no-response"><code>HTTP/1.1 202 Accepted
+</code></pre>
+
+<h2>Crear una partida</h2>
+
+<pre><code>POST /myapp/file
+</code></pre>
+
+
+
+<h3>Response</h3>
+
+Si todo ha ido correctamente, devuelve la misma partida que se ha creado.
+
+<pre class="headers"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 09 May 2015 06:25:32 GMT
+Content-Length: 130</code></pre>
+
+<pre><code class="language-javascript"><span class="p">
+{
+    "creationdate": "2014-07-02T00:00:00",
+    "description": "partida de campeonato",
+    "id": "10",
+    "url": "http://prova/10",
+    "userlist": [
+        "Juanito",
+        "Jorgito",
+        "Jaimito"
+    ]
+}
+</span></code></pre>
+
+<p>Si faltan los elementos requeridos</p>
+
+<pre class="headers no-response"><code>HTTP/1.1 400 Bad Request
+</code></pre>
+
+<p>Si el identificador ya existe</p>
+
+<pre class="headers no-response"><code>HTTP/1.1 409 Conflict
+</code></pre>
+
+
+
+<h2 id="create">Actualizar una partida</h2>
+
+<pre><code>POST /myapp/game/:gameid
+</code></pre>
+
+<p>El <code>:gameid</code> ha de coincidir con el <code>id</code> indicado en el JSON.</p>
+
+<h3 id="input">Input</h3>
+
+Los mismos datos que el POST
+
+<h3>Response</h3>
+
+Si todo ha ido correctamente, devuelve el mismo fichero que se ha creado.
+
+<pre class="headers"><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Fri, 09 May 2015 06:25:32 GMT
+Content-Length: 130</code></pre>
+
+<pre><code class="language-javascript"><span class="p">
+{
+    "creationdate": "2014-07-02T00:00:00",
+    "description": "partida de campeonato",
+    "id": "10",
+    "url": "http://prova/10",
+    "userlist": [
+        "Juanito",
+        "Jorgito",
+        "Jaimito"
+    ]
+}
+</span></code></pre>
+
+<p>Si el identificador no existe</p>
+
+<pre class="headers no-response"><code>HTTP/1.1 404 Not found
+</code></pre>
+
+<p>Si <code>:gameid</code> no coincide con el indicado en el JSON.</p>
+
+<pre class="headers no-response"><code>HTTP/1.1 400 Bad Request
+</code></pre>
+
+    </div>
+    </div>
+
+</body>
+</html>
